@@ -1,0 +1,6 @@
+@LockyLuke.AuthAPI_HostAddress = http://localhost:5252
+
+GET {{LockyLuke.AuthAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

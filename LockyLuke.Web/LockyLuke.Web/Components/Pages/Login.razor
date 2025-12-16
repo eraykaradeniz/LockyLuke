@@ -1,0 +1,83 @@
+﻿@page "/login"
+@using LockyLuke.Web.Entities
+@rendermode InteractiveServer
+@inject ILocalStorageService localStorage
+@layout Layout.EmptyLayout
+<div class="container text-center">
+    <div class="row justify-content-md-center">
+        <div class="card" style="width:20rem;">
+            <div class="card-body">
+                <div class="row g-3 align-items-center justify-content-md-center">
+                    <EditForm FormName="LoginForm" Enhance Model="@userModel" OnValidSubmit="LoginProcess">
+                       
+                        <div class="col col-auto">
+                            <label for="txtUsername" class="col-form-label">User Name</label>
+                        </div>
+                        <div class="col col-auto">
+                            <input  name="UserName" @bind-value="@userModel.UserName" type="text" class="form-control">
+                        </div>
+                        <div class="col-auto">
+                            <label for="inputPassword6" class="col-form-label">Password</label>
+                        </div>
+                        <div class="col-auto">
+                            <input name="Password" type="password" @bind-value="@userModel.Password" class="form-control">
+                        </div>
+                        <div class="col-auto">
+                            <br />
+                            <button type="submit" class="btn btn-primary btn-block mb-3">Login</button>
+                            <button type="submit" class="btn btn-danger mb-3">Password Reminder</button>
+                        </div>
+
+                    </EditForm>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private EditContext? editContext;
+    [SupplyParameterFromForm]
+    private UserLoginDto userModel { get; set; }
+
+    [Inject] HttpClient Client { get; set; }
+
+    [Inject] ModalManager modalManager { get; set; }
+
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    [Inject] AuthenticationStateProvider authenticationStateProvider { get; set; }
+
+    protected override void OnInitialized() => userModel ??= new();
+
+    private async Task LoginProcess()
+    {
+
+        var response = await Client.PostAsJsonAsync("/login", userModel);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+            if (result.statusCode == 200)
+            {
+                await localStorage.SetItemAsync("token", result.data.accessToken);
+                await localStorage.SetItemAsync("userid", result.data.userId);
+
+                (authenticationStateProvider as AuthStateProvider)?.NotifyUserLogin(result.data.accessToken, result.data.userId);
+
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.data.accessToken);
+
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                await modalManager.ShowMessageAsync("Login Failed", "Invalid username or password.");
+            }
+
+        }
+        else
+        {
+            await modalManager.ShowMessageAsync("Login Failed", "Invalid username or password.");
+        }
+    }
+}

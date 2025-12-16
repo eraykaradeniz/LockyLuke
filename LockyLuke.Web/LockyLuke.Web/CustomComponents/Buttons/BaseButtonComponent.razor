@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+
+
+@code {
+    [Parameter]
+    public string ButtonText { get; set; }
+
+    [Parameter]
+    public string ButtonColor { get; set; } = "primary";
+
+    [Parameter]
+    public string ButtonIcon { get; set; }
+
+    [Parameter]
+    public string ButtonSize { get; set; }
+
+    [Parameter]
+    public bool isOutline { get; set; }
+
+    [Parameter]
+    public bool isBusy { get; set; }
+
+    [Parameter]
+    public string busyText { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+
+
+}

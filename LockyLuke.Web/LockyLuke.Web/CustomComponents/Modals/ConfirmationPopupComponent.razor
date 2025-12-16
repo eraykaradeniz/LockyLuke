@@ -1,0 +1,24 @@
+﻿@inherits BaseModalComponent
+
+<div class="row justify-content-center">
+
+    <div class="d-flex">
+        <div class="ml-auto p-2">
+            <button class="btn btn-primary" @onclick="@ConfirmClick">@YesText</button>
+            <button class="btn btn-danger" @onclick="@CancelClick">@CancelText</button>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        Message = parameters.GetValueOrDefault<String>("Message") ?? "";
+        YesText = "Tamam";
+        CancelText = "İptal";
+
+        await base.SetParametersAsync(parameters);
+    }
+}

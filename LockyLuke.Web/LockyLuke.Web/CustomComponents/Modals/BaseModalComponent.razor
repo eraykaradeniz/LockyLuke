@@ -1,0 +1,31 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+
+@code {
+
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public string OkText { get; set; }
+
+    [Parameter]
+    public string CancelText { get; set; }
+
+    [Parameter]
+    public string YesText { get; set; }
+
+    [Parameter]
+    public string NoText { get; set; }
+
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    protected async Task ConfirmClick()
+    {
+        await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+    }
+
+    protected async Task CancelClick()
+    { await BlazoredModal.CancelAsync(); }
+}

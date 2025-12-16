@@ -1,0 +1,48 @@
+﻿
+@inherits LayoutComponentBase
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+      
+        <article class="content px-4">
+            @Body
+                <ErrorBoundary>
+        
+         
+                <ErrorContent>
+                    <p class="errorUI">😈 A rotten gremlin got us. Sorry!</p>
+                </ErrorContent>
+            </ErrorBoundary>
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+@code
+{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            // loginName = authState.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("login");
+        }
+    }
+}

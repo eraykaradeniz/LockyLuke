@@ -1,0 +1,92 @@
+﻿@page "/update-information/{id:guid}"
+
+
+<h3>Update Information</h3>
+
+<div class="row justify-content-md-center">
+    <div class="card">
+        <div class="card-body">
+
+            <EditForm Model="@informationupdateDto" FormName="update-information-form"
+                      OnSubmit="UpdateInformation">
+                <div class="row g-3">
+                    <div class="col-xs-12 col-md-3">
+                        <input type="text" @bind-value="informationupdateDto.Site" autocomplete="off" placeholder="Site" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-md-3">
+                        <input type="text" @bind="informationupdateDto.UserName" autocomplete="off" placeholder="UserName" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-md-3">
+                        <input type="text" @bind="informationupdateDto.Password" autocomplete="off" placeholder="Pass" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-md-12">
+                        <textarea class="form-control" @bind="@informationupdateDto.Description">@informationupdateDto.Description</textarea>
+                    </div>
+                    <div class="col-xs-12 col-md-12">
+                        <button type="submit" class="btn btn-success btn-block mb-3">Update</button>
+                    </div>
+                </div>
+            </EditForm>
+
+
+        </div>
+    </div>
+</div>
+
+@code {
+
+    protected InformationUpdateDto informationupdateDto = new InformationUpdateDto();
+    [Parameter]
+    public Guid id { get; set; }
+
+    [Inject]
+    public HttpClient httpClient { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+    override protected async Task OnInitializedAsync()
+    {
+        try
+        {
+            // information/{id}
+
+            var serviceResponse = await httpClient.GetFromJsonAsync<InformationUpdateDto>("information/" + id);
+            if (serviceResponse is not null)
+            {
+                informationupdateDto = serviceResponse;
+            }
+            else
+            {
+                navigationManager.NavigateTo("informations");
+            }
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    protected async Task UpdateInformation()
+    {
+        try
+        {
+            var authState = await AuthState;
+            if (!authState.User.Identity.IsAuthenticated)
+                navigationManager.NavigateTo("/login");
+            informationupdateDto.id = id;
+            await httpClient.PutAsJsonAsync("information", informationupdateDto);
+
+            navigationManager.NavigateTo("/informations");
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
+        
+    }
+}

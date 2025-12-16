@@ -1,0 +1,18 @@
+﻿@inherits LayoutComponentBase
+<div class="page">
+
+    <main>
+
+        <article class="content px-4">
+               @Body
+            <ErrorBoundary>
+
+                <ErrorContent>
+                 
+                    <p class="errorUI"></p>
+                </ErrorContent>
+            </ErrorBoundary>
+        
+        </article>
+    </main>
+</div>

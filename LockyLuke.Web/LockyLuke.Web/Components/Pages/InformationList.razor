@@ -1,0 +1,132 @@
+﻿@page "/informations"
+
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject HttpClient Client
+@inherits LockyLuke.Web.Components.Pages.InformationListBase
+<h3>Information List</h3>
+<div class="row justify-content-md-center">
+    <div class="card">
+        <div class="card-body">
+         
+            <EditForm Model="@informationAddDto" FormName="add-information-form"
+                      OnSubmit="AddInformation">
+                <div class="row g-3">
+                    <div class="col-xs-12 col-md-3">
+                        <input type="text" @bind-value="informationAddDto.Site" autocomplete="off" placeholder="Site" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-md-3">
+                        <input type="text" @bind-value="informationAddDto.UserName" autocomplete="off" placeholder="UserName" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-md-3">
+                        <input type="password" @bind-value="informationAddDto.Password" autocomplete="off" placeholder="Pass" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-md-3">
+                        <button type="submit" class="btn btn-success btn-block mb-3">Add</button>
+                    </div>
+                </div>
+            </EditForm>
+
+
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="row">
+    <div class="col-xs-12 col-md-6">
+        <input type="text" @bind="searchValue" class="form-control" />
+    </div>
+    <div class="col-xs-12 col-md-6">
+        <button type="button" @onclick="(e => GetInformationsbySearchKey())" class="btn btn-warning">Search</button>
+    </div>
+</div>
+
+
+
+
+<table class="table table-striped table-responsive">
+    <thead>
+        <tr>
+            <th scope="col">Site</th>
+            <th scope="col" width="20%">User Name</th>
+            <th scope="col" width="20%">Pass</th>
+            <th scope="col">Update Date</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Informations is not null)
+        {
+            foreach (var item in Informations)
+            {
+                <tr>
+                    <td>@item.Site</td>
+                    <td width="20%"  style="cursor:pointer;">
+                        @if (item.UserName.Length <= 10)
+                        {
+                            @item.UserName
+                        }
+                        else
+                        {
+
+                            @item.UserName.Substring(0, 10)
+                        }
+
+                        <button type="button" class="btn btn-success" @onclick="e =>  SetStock(item.Id,'u')">Copy</button>
+                    </td>
+                    <td width="20%">
+                        @if (@item.Password.Length <= 10)
+                        {
+                            @item.Password
+                        }
+                        else
+                        {
+                            @item.Password.Substring(0, 10)
+                        }
+
+                        <button type="button" class="btn btn-success" @onclick="e => SetStock(item.Id, 'p')">Copy</button>
+                    </td>
+                    <td>@item.LastUpdateDate</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="@(e => (DeleteInformation(item.Id.ToString())))"><i class="fa-solid fa-trash-can"></i></button>
+                        <a href="/update-information/@item.Id" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    </td>
+                </tr>
+
+            }
+        }
+
+      
+    </tbody>
+  
+</table>
+
+@code{
+    private string ItemSet;
+    private async Task SetStock(Guid id,char type)
+    {
+        ItemSet = await Client.GetFromJsonAsync<string>("/information/" + id + "&t=" + type);
+        await JS.InvokeVoidAsync("unsecuredCopyToClipboard",ItemSet);
+    }
+
+}
+<script>
+
+    
+        function unsecuredCopyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value =text ;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Unable to copy to clipboard', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+  
+</script>
